@@ -1,7 +1,8 @@
 ﻿using Codenation.Challenge.Models;
 using System;
 
-namespace Source.Models
+//Ajustei namespaces para ficar igual do teste
+namespace Codenation.Challenge.Models
 {
     public class Candidate
     {

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Source.Models;
 
 namespace Codenation.Challenge.Models
 {
@@ -9,7 +8,7 @@ namespace Codenation.Challenge.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Acceleration> Accelerations { get; set; }
         public DbSet<Submission> Submissions { get; set; }
-        public DbSet<Source.Models.Challenge> Challenges { get; set; }
+        public DbSet<Challenge> Challenges { get; set; }
         public DbSet<Candidate> Candidates { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,40 +21,23 @@ namespace Codenation.Challenge.Models
         {
             mb.Entity<Acceleration>(eb => {
                 eb.ToTable("acceleration");
+
                 eb.HasKey(a => a.Id);
 
                 eb.Property(p => p.Id).HasColumnName("id").HasColumnType("int").IsRequired();
                 eb.Property(p => p.Name).HasColumnName("name").HasColumnType("varchar(100)").HasMaxLength(100).IsRequired();
                 eb.Property(p => p.Slug).HasColumnName("slug").HasColumnType("varchar(50)").HasMaxLength(50).IsRequired();
                 eb.Property(p => p.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").IsRequired();
-                eb.Property(p => p.Challenge).HasColumnName("challenge_id").HasColumnType("int").IsRequired();
-                //Relação um-para-muitos entre acceleration e candidate
-                eb.HasMany<Candidate>(a => a.Candidates)
-                    .WithOne(c => c.Acceleration)
-                        .HasForeignKey(c => c.AccelerationId) ;
-            });
-            mb.Entity<Source.Models.Challenge>(eb =>
-            {
-                eb.ToTable("challenge");
+                //Estava alterando o nome da propriedade Challenge, não challengeId
+                eb.Property(p => p.ChallengeId).HasColumnName("challenge_id").HasColumnType("int").IsRequired();
+                
 
-                eb.HasKey(c => c.Id);
-                eb.Property(p => p.Id).HasColumnName("id").HasColumnType("int").IsRequired();
-                eb.Property(p => p.Name).HasColumnName("name").HasColumnType("varchar(100)").HasMaxLength(100).IsRequired();
-                eb.Property(p => p.Slug).HasColumnName("slug").HasColumnType("varchar(50)").HasMaxLength(50).IsRequired();
-                eb.Property(p => p.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").IsRequired();
-                //Relação um-para-muitos entre challenge e acceleration
-                eb.HasMany<Acceleration>(c => c.Accelerations)
-                    .WithOne(a => a.Challenge)
-                        .HasForeignKey(a => a.ChallengeId);
-                //Relação um-para-muitos entre challenge e submission
-                eb.HasMany<Submission>(c => c.Submissions)
-                    .WithOne(s => s.Challenge)
-                        .HasForeignKey(s => s.ChallengeId);
-                //Relação um-para-muitos entre challenge e acceleration
-                eb.HasMany<Acceleration>(c => c.Accelerations)
-                    .WithOne(s => s.Challenge)
-                        .HasForeignKey(s => s.ChallengeId);
+                //Relação um-para-muitos entre acceleration e candidate
+                eb.HasMany(a => a.Candidates)
+                    .WithOne(c => c.Acceleration)
+                        .HasForeignKey(c => c.AccelerationId);
             });
+
             mb.Entity<Company>(eb => {
                 eb.ToTable("company");
                 eb.HasKey(c => c.Id);
@@ -94,13 +76,51 @@ namespace Codenation.Challenge.Models
                 eb.HasKey(k => new { k.UserId, k.AccelerationId, k.CompanyId });
                 eb.Property(p => p.Status).HasColumnName("status").HasColumnType("int").IsRequired();
                 eb.Property(p => p.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").IsRequired();
+
+                //Estava faltando trocar o nome das outras propriedades
+                eb.Property(p => p.AccelerationId).HasColumnName("acceleration_id").HasColumnType("int").IsRequired();
+                eb.Property(p => p.CompanyId).HasColumnName("company_id").HasColumnType("int").IsRequired();
+                eb.Property(p => p.UserId).HasColumnName("user_id").HasColumnType("int").IsRequired();
+
+
             });
+
+            mb.Entity<Challenge>(eb =>
+            {
+                eb.ToTable("challenge");
+
+                eb.HasKey(c => c.Id);
+                eb.Property(p => p.Id).HasColumnName("id").HasColumnType("int").IsRequired();
+                eb.Property(p => p.Name).HasColumnName("name").HasColumnType("varchar(100)").HasMaxLength(100).IsRequired();
+                eb.Property(p => p.Slug).HasColumnName("slug").HasColumnType("varchar(50)").HasMaxLength(50).IsRequired();
+                eb.Property(p => p.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").IsRequired();
+                
+                //Relação um-para-muitos entre challenge e submission
+                eb.HasMany<Submission>(c => c.Submissions)
+                    .WithOne(s => s.Challenge)
+                        .HasForeignKey(s => s.ChallengeId);
+
+                //Relação um-para-muitos entre challenge e acceleration
+                eb.HasMany<Acceleration>(c => c.Accelerations)
+                    .WithOne(s => s.Challenge)
+                        .HasForeignKey(s => s.ChallengeId);
+
+                //estava duplicada
+                //eb.HasMany<Acceleration>(c => c.Accelerations)
+                //    .WithOne(a => a.Challenge)
+                //        .HasForeignKey(a => a.ChallengeId);
+            });
+            
             mb.Entity<Submission>(eb => {
                 eb.ToTable("submission");
                 //Definindo chave composta
                 eb.HasKey(k => new {k.UserId, k.ChallengeId });
                 eb.Property(p => p.Score).HasColumnName("score").HasColumnType("float").IsRequired();
                 eb.Property(p => p.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").IsRequired();
+
+                //Estava faltando trocar o nome das outras propriedades
+                eb.Property(p => p.UserId).HasColumnName("user_id").HasColumnType("int").IsRequired();
+                eb.Property(p => p.ChallengeId).HasColumnName("challenge_id").HasColumnType("int").IsRequired();
             });
 
         }

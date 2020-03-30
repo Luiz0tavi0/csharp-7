@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Source.Models
+//Ajustei namespaces para ficar igual do teste
+namespace Codenation.Challenge.Models
 {
     public class Challenge
     {
